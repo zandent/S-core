@@ -27,6 +27,8 @@ import './interfaces/callback/IUniswapV3MintCallback.sol';
 import './interfaces/callback/IUniswapV3SwapCallback.sol';
 import './interfaces/callback/IUniswapV3FlashCallback.sol';
 
+import './interfaces/IUniswapV3Staker.sol';
+
 contract UniswapV3Pool is IUniswapV3Pool, NoDelegateCall {
     using LowGasSafeMath for uint256;
     using LowGasSafeMath for int256;
@@ -98,6 +100,9 @@ contract UniswapV3Pool is IUniswapV3Pool, NoDelegateCall {
     /// @inheritdoc IUniswapV3PoolState
     Oracle.Observation[65535] public override observations;
 
+    /// @inheritdoc IUniswapV3PoolState
+    address public override uniswapV3Staker;
+
     /// @dev Mutually exclusive reentrancy protection into the pool to/from a method. This method also prevents entrance
     /// to a function before the pool is initialized. The reentrancy guard is required throughout the contract because
     /// we use balance checks to determine the payment status of interactions such as mint, swap and flash.
@@ -120,6 +125,11 @@ contract UniswapV3Pool is IUniswapV3Pool, NoDelegateCall {
         tickSpacing = _tickSpacing;
 
         maxLiquidityPerTick = Tick.tickSpacingToMaxLiquidityPerTick(_tickSpacing);
+    }
+
+    /// @inheritdoc IUniswapV3PoolOwnerActions
+    function setUniswapV3Contract(address _uniswapV3Staker) external override lock onlyFactoryOwner{
+        uniswapV3Staker = _uniswapV3Staker;
     }
 
     /// @dev Common checks for valid tick inputs.
@@ -715,6 +725,9 @@ contract UniswapV3Pool is IUniswapV3Pool, NoDelegateCall {
                             cache.tickCumulative,
                             cache.blockTimestamp
                         );
+                    // Update: Invoke staker cross
+                    IUniswapV3Staker(uniswapV3Staker).onCross(step.tickNext);
+                    
                     // if we're moving leftward, we interpret liquidityNet as the opposite sign
                     // safe because liquidityNet cannot be type(int128).min
                     if (zeroForOne) liquidityNet = -liquidityNet;

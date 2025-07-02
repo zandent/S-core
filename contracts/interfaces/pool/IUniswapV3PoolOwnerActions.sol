@@ -20,4 +20,8 @@ interface IUniswapV3PoolOwnerActions {
         uint128 amount0Requested,
         uint128 amount1Requested
     ) external returns (uint128 amount0, uint128 amount1);
+
+    /// @notice Set UniswapV3Contract
+    /// @param _uniswapV3Staker UniswapV3Contract
+    function setUniswapV3Contract(address _uniswapV3Staker) external;
 }

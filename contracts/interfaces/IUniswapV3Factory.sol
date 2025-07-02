@@ -75,4 +75,17 @@ interface IUniswapV3Factory {
     /// @param fee The fee amount to enable, denominated in hundredths of a bip (i.e. 1e-6)
     /// @param tickSpacing The spacing between ticks to be enforced for all pools created with the given fee amount
     function enableFeeAmount(uint24 fee, int24 tickSpacing) external;
+
+    /// @notice Returns the current uniswapV3Staker of the factory
+    /// @dev Can be changed by the current uniswapV3Staker via setUniswapV3StakerContract
+    /// @return The address of the uniswapV3Staker
+    function uniswapV3Staker() external view returns (address);
+
+    /// @notice set UniswapV3StakerContract address
+    /// @param _uniswapV3Staker the address of the uniswapV3Staker
+    function setUniswapV3StakerContract(address _uniswapV3Staker) external;
+
+    /// @notice update UniswapV3Staker For ExistingPool
+    /// @param pool the address of the pool
+    function updateUniswapV3StakerForExistingPool(address pool) external;
 }

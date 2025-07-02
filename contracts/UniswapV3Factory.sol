@@ -19,6 +19,8 @@ contract UniswapV3Factory is IUniswapV3Factory, UniswapV3PoolDeployer, NoDelegat
     /// @inheritdoc IUniswapV3Factory
     mapping(address => mapping(address => mapping(uint24 => address))) public override getPool;
 
+    address public override uniswapV3Staker;
+
     constructor() {
         owner = msg.sender;
         emit OwnerChanged(address(0), msg.sender);
@@ -69,5 +71,17 @@ contract UniswapV3Factory is IUniswapV3Factory, UniswapV3PoolDeployer, NoDelegat
 
         feeAmountTickSpacing[fee] = tickSpacing;
         emit FeeAmountEnabled(fee, tickSpacing);
+    }
+
+    /// @inheritdoc IUniswapV3Factory
+    function setUniswapV3StakerContract(address _uniswapV3Staker) public override {
+        require(msg.sender == owner);
+        uniswapV3Staker = _uniswapV3Staker;
+    }
+
+    /// @inheritdoc IUniswapV3Factory
+    function updateUniswapV3StakerForExistingPool(address pool) public override {
+        require(msg.sender == owner);
+        IUniswapV3Pool(pool).setUniswapV3Contract(uniswapV3Staker);
     }
 }

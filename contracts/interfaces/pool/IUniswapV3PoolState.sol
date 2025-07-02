@@ -113,4 +113,7 @@ interface IUniswapV3PoolState {
             uint160 secondsPerLiquidityCumulativeX128,
             bool initialized
         );
+
+    /// @notice Returns uniswap v3 staker contract address
+    function uniswapV3Staker() external view returns (address);
 }
