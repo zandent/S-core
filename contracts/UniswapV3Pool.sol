@@ -119,6 +119,12 @@ contract UniswapV3Pool is IUniswapV3Pool, NoDelegateCall {
         _;
     }
 
+    /// @dev Prevents calling a function from anyone except the address returned by IUniswapV3Factory#owner()
+    modifier onlyFactory() {
+        require(msg.sender == factory);
+        _;
+    }
+
     constructor() {
         int24 _tickSpacing;
         (factory, token0, token1, fee, _tickSpacing) = IUniswapV3PoolDeployer(msg.sender).parameters();
@@ -128,7 +134,7 @@ contract UniswapV3Pool is IUniswapV3Pool, NoDelegateCall {
     }
 
     /// @inheritdoc IUniswapV3PoolOwnerActions
-    function setUniswapV3Contract(address _uniswapV3Staker) external override lock onlyFactoryOwner{
+    function setUniswapV3Contract(address _uniswapV3Staker) external override onlyFactory{
         uniswapV3Staker = _uniswapV3Staker;
     }
 
@@ -727,7 +733,7 @@ contract UniswapV3Pool is IUniswapV3Pool, NoDelegateCall {
                         );
                     // Update: Invoke staker cross
                     IUniswapV3Staker(uniswapV3Staker).onCross(step.tickNext);
-                    
+
                     // if we're moving leftward, we interpret liquidityNet as the opposite sign
                     // safe because liquidityNet cannot be type(int128).min
                     if (zeroForOne) liquidityNet = -liquidityNet;

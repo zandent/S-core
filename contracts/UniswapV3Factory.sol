@@ -49,6 +49,7 @@ contract UniswapV3Factory is IUniswapV3Factory, UniswapV3PoolDeployer, NoDelegat
         getPool[token0][token1][fee] = pool;
         // populate mapping in the reverse direction, deliberate choice to avoid the cost of comparing addresses
         getPool[token1][token0][fee] = pool;
+        IUniswapV3Pool(pool).setUniswapV3Contract(uniswapV3Staker);
         emit PoolCreated(token0, token1, fee, tickSpacing, pool);
     }
 
